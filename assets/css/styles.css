@@ -1,51 +1,69 @@
 /*********** FOOTER ***********/
 .footer {
-	position: fixed;
-	bottom: 0;
-	width: 100%;
-	height: 56px;
-	background-color: #343a40;
-	color: white;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 0 20px;
-	box-sizing: border-box;
-	font-size: 14px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 56px;
+    background-color: #343a40;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-sizing: border-box;
+    font-size: 14px;
 }
 
 .footer-content {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }
 
 .social-icons {
-	display: flex;
-	align-items: center;
-	margin-left: auto;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
 }
 
 .social-icons a {
-	color: white;
-	margin: 0 10px;
-	font-size: 1.2em;
+    color: white;
+    margin: 0 10px;
+    font-size: 1.2em;
 }
 
 .social-icons a:hover {
-	color: #ddd;
+    color: #ddd;
 }
 
 .contact-info {
-	text-align: center;
-	margin-left: auto;
+    text-align: center;
+    margin-left: auto;
 }
 
 /*********** HEADER ***********/
 main {
-	padding-top: 62px;
-	padding-bottom: 56px;
+    padding-top: 62px;
+    padding-bottom: 56px;
+}
+
+/*********** ALERTAS VISUALES ***********/
+.alert-active {
+    border: 5px solid red;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% {
+        border-color: rgb blanchedalmond;
+    }
+    50% {
+        border-color: transparent;
+    }
+    100% {
+        border-color: red;
+    }
 }
 
 

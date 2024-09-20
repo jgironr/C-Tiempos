@@ -1,8 +1,11 @@
 let timers = {};
 let timerStates = {};
 let timerSeconds = {};
-let workspaceTypes = {}; 
-let timerLimits = {};    
+
+// Agregar el sonido de alerta
+const alarmSound = new Audio('/C-Tiempos/assets/sounds/alert.mp3');
+let workspaceTypes = {};
+let timerLimits = {};
 
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('.play-pause-timer').forEach(button => {
@@ -90,9 +93,9 @@ document.addEventListener("DOMContentLoaded", function () {
 document.querySelectorAll('.play-pause-timer').forEach(button => {
     button.onclick = function () {
         const id = this.dataset.workspaceId;
-        const rate = parseFloat(document.getElementById(`rate-${id}`).value);  
+        const rate = parseFloat(document.getElementById(`rate-${id}`).value);
         if (timerStates[id] === 'running') {
-         
+
             pauseTimer(id);
             this.innerHTML = '<i class="fas fa-play"></i>';
             timerStates[id] = 'paused';
@@ -101,7 +104,7 @@ document.querySelectorAll('.play-pause-timer').forEach(button => {
             let totalCost = 0;
 
             if (workspaceTypes[id] === 'countdown') {
-                const timeUsedInHours = (timerLimits[id] * 60 - timeInSeconds) / 3600;  
+                const timeUsedInHours = (timerLimits[id] * 60 - timeInSeconds) / 3600;
                 totalCost = timeUsedInHours * rate;
             } else {
                 const timeInHours = timeInSeconds / 3600;
@@ -120,11 +123,11 @@ document.querySelectorAll('.play-pause-timer').forEach(button => {
         } else {
             const type = workspaceTypes[id] || 'stopwatch';
             const limit = parseInt(document.getElementById(`limit-${id}`).value) || 0;
-            timerLimits[id] = limit;  
+            timerLimits[id] = limit;
             if (timerStates[id] === 'paused') {
                 timerSeconds[id] = 0;
             }
-            
+
             startTimer(id, type, limit);
             this.innerHTML = '<i class="fas fa-pause"></i>';
             timerStates[id] = 'running';
@@ -141,13 +144,13 @@ function startTimer(id, type, limit) {
     if (timers[id]) clearInterval(timers[id]);
     let seconds = timerSeconds[id] || 0;
     if (type === 'countdown' && seconds === 0) {
-        seconds = limit * 60;  
-    }  
+        seconds = limit * 60;
+    }
     timers[id] = setInterval(() => {
         if (type === 'countdown') {
             seconds--;
             if (seconds <= 0) {
-                clearInterval(timers[id]);  
+                clearInterval(timers[id]);
 
                 const rate = parseFloat(document.getElementById(`rate-${id}`).value);
                 const totalCost = (limit / 60) * rate;
@@ -162,10 +165,10 @@ function startTimer(id, type, limit) {
                 return;
             }
         } else {
-            
+
             seconds++;
             if (limit > 0 && seconds >= limit * 60) {
-                clearInterval(timers[id]);  
+                clearInterval(timers[id]);
 
                 const rate = parseFloat(document.getElementById(`rate-${id}`).value);
                 const timeInHours = seconds / 3600;
@@ -190,7 +193,7 @@ function startTimer(id, type, limit) {
 
 // Función para pausar el cronómetro
 function pauseTimer(id) {
-    if (timers[id]) clearInterval(timers[id]);  
+    if (timers[id]) clearInterval(timers[id]);
     saveTimerState(id, timerSeconds[id], 'paused', workspaceTypes[id], timerLimits[id]);
 }
 
@@ -202,20 +205,20 @@ function saveTimerState(id, timeInSeconds, state, type, limit) {
         state: state,
         type: type,
         limit: limit,
-        timestamp: Date.now() 
+        timestamp: Date.now()
     };
-    localStorage.setItem(`timer_${id}`, JSON.stringify(timerState));  
+    localStorage.setItem(`timer_${id}`, JSON.stringify(timerState));
 }
 
 function loadTimerState(id) {
     const savedState = localStorage.getItem(`timer_${id}`);
     if (savedState) {
         const parsedState = JSON.parse(savedState);
-        
+
         // Restaurar el valor del límite de tiempo en el campo de entrada
         const limitInput = document.getElementById(`limit-${id}`);
         if (limitInput && parsedState.limit) {
-            limitInput.value = parsedState.limit; 
+            limitInput.value = parsedState.limit;
             limitInput.classList.remove('d-none');
         }
 
@@ -244,7 +247,7 @@ function pad(num) {
 document.querySelectorAll('.reset-timer').forEach(button => {
     button.onclick = function () {
         const id = this.dataset.workspaceId;
-        const rate = parseFloat(document.getElementById(`rate-${id}`).value); 
+        const rate = parseFloat(document.getElementById(`rate-${id}`).value);
 
         // Calcular el tiempo transcurrido antes del reinicio
         const timeInSeconds = timerSeconds[id];
@@ -318,17 +321,65 @@ document.querySelectorAll('.select-type').forEach(button => {
     };
 });
 
+function startTimer(id, type, limit) {
+    if (timers[id]) clearInterval(timers[id]);
+
+    let seconds = timerSeconds[id] || (type === 'countdown' ? limit * 60 : 0);
+    if (timerStates[id] === 'running') return;
+
+    timers[id] = setInterval(() => {
+        if (type === 'countdown') {
+            seconds--;
+            if (seconds <= 0) {
+                clearInterval(timers[id]);
+                triggerAlert(id);
+            }
+        } else {
+            seconds++;
+            if (seconds >= limit * 60) {
+                clearInterval(timers[id]);
+                triggerAlert(id);
+            }
+        }
+        document.getElementById(`timer-${id}`).innerText = formatTime(seconds);
+        timerSeconds[id] = seconds;
+    }, 1000);
+}
+
+function triggerAlert(id) {
+    // Sonido de alerta
+    alarmSound.play();
+
+    // Parpadeo del borde del cuadro
+    const timerElement = document.getElementById(`timer-${id}`);
+    timerElement.classList.add('alert-active'); // clase que activa el parpadeo
+    setTimeout(() => {
+        timerElement.classList.remove('alert-active'); // Elimina el parpadeo después de un tiempo
+    }, 5000); // Dura 5 segundos el parpadeo
+}
+
+function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
+}
+
+function pad(num) {
+    return num.toString().padStart(2, '0');
+}
 
 function resetTimer(id) {
-    if (timers[id]) clearInterval(timers[id]);  
-    document.getElementById(`timer-${id}`).innerText = '00:00:00'; 
-    timerSeconds[id] = 0;  
-    timerStates[id] = 'paused';  
-    timerLimits[id] = 0;  
-    workspaceTypes[id] = '';  
+    if (timers[id]) clearInterval(timers[id]);
+    document.getElementById(`timer-${id}`).innerText = '00:00:00';
+    timerSeconds[id] = 0;
+    timerStates[id] = 'paused';
+    timerLimits[id] = 0;
+    workspaceTypes[id] = '';
 
     // Guardar el estado reseteado en localStorage
-    saveTimerState(id, timerSeconds[id], 'paused', '', 0);  
+    saveTimerState(id, timerSeconds[id], 'paused', '', 0);
     document.querySelector(`.play-pause-timer[data-workspace-id="${id}"]`).innerHTML = '<i class="fas fa-play"></i>';
 }
 
@@ -348,26 +399,26 @@ function toggleWorkspace(id, button, url) {
         },
         body: `workspace_id=${id}`
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            if (data.active) {
-                button.classList.replace('btn-outline-success', 'btn-outline-danger');
-                button.innerText = 'Dejar de Usar';
-            } else {
-                button.classList.replace('btn-outline-danger', 'btn-outline-success');
-                button.innerText = 'Usar';
-                clearWorkspaceState(id);
-                hideWorkspace(id);  
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.active) {
+                    button.classList.replace('btn-outline-success', 'btn-outline-danger');
+                    button.innerText = 'Dejar de Usar';
+                } else {
+                    button.classList.replace('btn-outline-danger', 'btn-outline-success');
+                    button.innerText = 'Usar';
+                    clearWorkspaceState(id);
+                    hideWorkspace(id);
+                }
             }
-        }
-    });
+        });
 }
 
 function hideWorkspace(id) {
-    const workspaceCard = document.querySelector(`[data-workspace-id="${id}"]`).closest('.mb-4');  
+    const workspaceCard = document.querySelector(`[data-workspace-id="${id}"]`).closest('.mb-4');
     if (workspaceCard) {
-        workspaceCard.remove(); 
+        workspaceCard.remove();
     }
 }
 
@@ -384,7 +435,7 @@ function clearWorkspaceState(id) {
     document.querySelector(`.play-pause-timer[data-workspace-id="${id}"]`).classList.add('d-none');
     document.querySelector(`.reset-timer[data-workspace-id="${id}"]`).classList.add('d-none');
     document.querySelector(`.input-limit[data-workspace-id="${id}"]`).classList.add('d-none');
-    
+
     document.getElementById(`limit-${id}`).value = '';
     document.querySelector(`.play-pause-timer[data-workspace-id="${id}"]`).innerHTML = '<i class="fas fa-play"></i>';
 }
@@ -392,8 +443,8 @@ function clearWorkspaceState(id) {
 function hideWorkspace(id) {
     const workspaceCard = document.querySelector(`[data-workspace-id="${id}"]`).closest('.workspace-card');
     if (workspaceCard) {
-        workspaceCard.remove();  
-        console.log("Espacio de trabajo eliminado:", id);  
+        workspaceCard.remove();
+        console.log("Espacio de trabajo eliminado:", id);
     } else {
         console.error("No se encontró el espacio de trabajo con ID:", id);
     }
@@ -402,7 +453,7 @@ function hideWorkspace(id) {
 function showWorkspace(id) {
     const workspaceCard = document.querySelector(`[data-workspace-id="${id}"]`).closest('.workspace-card');
     if (workspaceCard) {
-        workspaceCard.style.display = 'block';  
+        workspaceCard.style.display = 'block';
     }
 }
 
@@ -419,10 +470,10 @@ $(function () {
 
 
 document.querySelectorAll('.preset-interval').forEach(button => {
-    button.onclick = function() {
-        const duration = this.dataset.duration; 
+    button.onclick = function () {
+        const duration = this.dataset.duration;
         const workspaceId = this.closest('.dropdown').querySelector('.dropdown-toggle').id.split('-')[1];
         document.getElementById(`limit-${workspaceId}`).value = duration;
-        document.getElementById(`limit-${workspaceId}`).classList.remove('d-none'); 
+        document.getElementById(`limit-${workspaceId}`).classList.remove('d-none');
     };
 });

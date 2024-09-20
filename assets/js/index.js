@@ -3,6 +3,9 @@ let workspaceTypes = {};
 let timerStates = {};
 let timerSeconds = {};
 
+// Agregar el sonido de alerta
+const alarmSound = new Audio('/C-Tiempos/assets/sounds/alert.mp3');
+
 document.querySelectorAll('.play-pause-timer').forEach(button => {
     button.onclick = function () {
         const id = this.dataset.workspaceId;
@@ -67,18 +70,30 @@ function startTimer(id, type, limit) {
             seconds--;
             if (seconds <= 0) {
                 clearInterval(timers[id]);
-                alert('Tiempo ' + id + ' finalizado!');
+                triggerAlert(id);
             }
         } else {
             seconds++;
             if (seconds >= limit * 60) {
                 clearInterval(timers[id]);
-                alert('Cronómetro ' + id + ' alcanzó el límite de ' + limit + ' minutos!');
+                triggerAlert(id);
             }
         }
         document.getElementById(`timer-${id}`).innerText = formatTime(seconds);
         timerSeconds[id] = seconds;
     }, 1000);
+}
+
+function triggerAlert(id) {
+    // Sonido de alerta
+    alarmSound.play();
+
+    // Parpadeo del borde del cuadro
+    const timerElement = document.getElementById(`timer-${id}`);
+    timerElement.classList.add('alert-active'); // clase que activa el parpadeo
+    setTimeout(() => {
+        timerElement.classList.remove('alert-active'); // Elimina el parpadeo después de un tiempo
+    }, 5000); // Dura 5 segundos el parpadeo
 }
 
 function formatTime(seconds) {

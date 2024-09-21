@@ -1,187 +1,205 @@
 /*********** FOOTER ***********/
 .footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 56px;
-    background-color: #343a40;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    box-sizing: border-box;
-    font-size: 14px;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	height: 56px;
+	background-color: #343a40;
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 20px;
+	box-sizing: border-box;
+	font-size: 14px;
 }
 
 .footer-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
 }
 
 .social-icons {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
+	display: flex;
+	align-items: center;
+	margin-left: auto;
 }
 
 .social-icons a {
-    color: white;
-    margin: 0 10px;
-    font-size: 1.2em;
+	color: white;
+	margin: 0 10px;
+	font-size: 1.2em;
 }
 
 .social-icons a:hover {
-    color: #ddd;
+	color: #ddd;
 }
 
 .contact-info {
-    text-align: center;
-    margin-left: auto;
+	text-align: center;
+	margin-left: auto;
 }
 
 /*********** HEADER ***********/
 main {
-    padding-top: 62px;
-    padding-bottom: 56px;
+	padding-top: 62px;
+	padding-bottom: 56px;
 }
 
 /*********** BODY ***********/
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%; /* Asegura que el contenido ocupe toda la pantalla */
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%; /* Asegura que el contenido ocupe toda la pantalla */
 }
 
 /*********** ESTILO PAGINA SIN CRONOMETROS ***********/
 .empty-state {
-    background-color: #E8F5E9; /* Fondo verde pastel */
-    min-height: calc(100vh - 56px); /* Cubre toda la ventana visible menos el espacio del footer */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    box-sizing: border-box;
+	background-color: #e8f5e9;
+	min-height: calc(100vh - 56px);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+/*********** Alertas visuales ***********/
+
+.alert-active {
+	border: 5px solid red;
+	animation: blink 1s infinite;
+}
+@keyframes blink {
+	0% {
+		border-color: rgb blanchedalmond;
+	}
+	50% {
+		border-color: transparent;
+	}
+	100% {
+		border-color: red;
+	}
 }
 
 /*********** IMAGENES ***********/
 .img-fluid {
-    border-radius: 10px;
-    max-height: 150px;
-    object-fit: cover;
-    display: block;
-    margin: 0 auto;
+	border-radius: 10px;
+	max-height: 150px;
+	object-fit: cover;
+	display: block;
+	margin: 0 auto;
 }
 
 .fixed-card-size {
-    width: 400px;
-    min-height: 400px;
-    height: 100%;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 20px;
-    padding-bottom: 20px;
+	width: 400px;
+	min-height: 400px;
+	height: 100%;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	padding-top: 20px;
+	padding-bottom: 20px;
 }
 
 .fixed-image-size {
-    width: 100%;
-    max-height: 150px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 10px;
+	width: 100%;
+	max-height: 150px;
+	object-fit: cover;
+	border-radius: 10px;
+	margin-bottom: 10px;
 }
 
 /*********** ESTILO BOTONES ***********/
 .empty-state img {
-    width: 300px; /* Tamaño grande para la imagen */
-    height: auto; /* Mantener la proporción */
-    margin-top: 0px;
-    margin-bottom: 20px;
+	width: 300px; /* Tamaño grande para la imagen */
+	height: auto; /* Mantener la proporción */
+	margin-top: 0px;
+	margin-bottom: 20px;
 }
 
-
 .container.py-3 {
-    padding-top: 0px; /* Eliminar padding extra en el contenedor */
+	padding-top: 0px; /* Eliminar padding extra en el contenedor */
 }
 
 .empty-state .button-group {
-    display: flex;
-    justify-content: center; /* Centra los botones horizontalmente */
-    align-items: center; /* Asegura que estén alineados verticalmente */
-    gap: 10px;
+	display: flex;
+	justify-content: center; /* Centra los botones horizontalmente */
+	align-items: center; /* Asegura que estén alineados verticalmente */
+	gap: 10px;
 }
 
 .empty-state .button-group a {
-    padding: 10px 20px;
-    font-size: 1rem;
-    margin: 0;
-    border-radius: 50px;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    vertical-align: middle;
+	padding: 10px 20px;
+	font-size: 1rem;
+	margin: 0;
+	border-radius: 50px;
+	transition: all 0.3s ease;
+	text-transform: uppercase;
+	vertical-align: middle;
 }
 
 /* Botón "Crear nuevo" */
 .empty-state .btn-primary {
-    background-color: #007bff; /* Color azul */
-    border-color: #007bff;
-    border-radius: 50px;
+	background-color: #007bff; /* Color azul */
+	border-color: #007bff;
+	border-radius: 50px;
 }
 
 .empty-state .btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #004085;
-    transform: scale(1.05); /* Agranda un 5% al pasar el mouse */
+	background-color: #0056b3;
+	border-color: #004085;
+	transform: scale(1.05); /* Agranda un 5% al pasar el mouse */
 }
 
 /* Botón "Activar uno" */
 .empty-state .btn-success {
-    background-color: #28a745; /* Botón verde */
-    border-color: #28a745;
-    border-radius: 50px;
+	background-color: #28a745; /* Botón verde */
+	border-color: #28a745;
+	border-radius: 50px;
 }
 
 .empty-state .btn-success:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
-    transform: scale(1.05); /* Agranda un 5% al pasar el mouse */
+	background-color: #218838;
+	border-color: #1e7e34;
+	transform: scale(1.05); /* Agranda un 5% al pasar el mouse */
 }
 
 /*********** FUENTE ***********/
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
 
 body {
-    font-family: 'Poppins', sans-serif; /* Cambiamos la fuente a Poppins */
+	font-family: "Poppins", sans-serif; /* Cambiamos la fuente a Poppins */
 }
 
 /*********** TEXTOS ***********/
 .welcome-title {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: #007bff;
+	font-size: 2.5rem;
+	font-weight: 600;
+	color: #007bff;
 }
 
 .welcome-text {
-    font-size: 1.5rem;
-    color: #666;
-    margin-bottom: 20px;
-    line-height: 1.5;
+	font-size: 1.5rem;
+	color: #666;
+	margin-bottom: 20px;
+	line-height: 1.5;
 }
 
 .empty-state h2 {
-    font-size: 2rem;
-    margin-top: 20px;
+	font-size: 2rem;
+	margin-top: 20px;
 }
 
 .empty-state p {
-    font-size: 1.2rem;
-    color: #333;
-    margin-bottom: 20px;
-    line-height: 1.6;
+	font-size: 1.2rem;
+	color: #333;
+	margin-bottom: 20px;
+	line-height: 1.6;
 }

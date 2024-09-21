@@ -11,65 +11,18 @@ class TimersController extends CI_Controller {
         $this->load->helper('form');
     }
 
-    public function usage_summary() {
-        $filter_type = $this->input->post('filter_type') ?? 'day';  
-        $filter_date = $this->input->post('filter_date') ?? date('Y-m-d');  
-    
-        if (!strtotime($filter_date)) {
-            $filter_date = date('Y-m-d'); 
-        }
-        $workspaces = $this->Model->get_all(); 
-        $workspaces_usage = [];
-    
-        if ($filter_type == 'day') {
-            foreach ($workspaces as $workspace) {
-                $workspaces_usage[] = [
-                    'workspace' => $workspace,
-                    'total_usage' => $this->Model->get_daily_usage_by_workspace($filter_date, $workspace->id)
-                ];
-            }
-        } elseif ($filter_type == 'week') {
-            $start_of_week = date('Y-m-d', strtotime('monday this week', strtotime($filter_date)));
-            $end_of_week = date('Y-m-d', strtotime('sunday this week', strtotime($filter_date)));
-    
-            foreach ($workspaces as $workspace) {
-                $workspaces_usage[] = [
-                    'workspace' => $workspace,
-                    'total_usage' => $this->Model->get_weekly_usage_by_workspace($start_of_week, $end_of_week, $workspace->id)
-                ];
-            }
-        } elseif ($filter_type == 'month') {
-            $year = date('Y', strtotime($filter_date));
-            $month = date('m', strtotime($filter_date));
-    
-            foreach ($workspaces as $workspace) {
-                $workspaces_usage[] = [
-                    'workspace' => $workspace,
-                    'total_usage' => $this->Model->get_monthly_usage_by_workspace($year, $month, $workspace->id)
-                ];
-            }
-        }
-        $data['workspaces_usage'] = $workspaces_usage;
-        $data['filter_type'] = $filter_type; 
-        $data['filter_date'] = $filter_date; 
-    
-        $this->load->view('pages/usage_summary', $data);
-    }
-
     public function index() {
-        // Obtener los cronómetros activos de la sesión
         $active_workspaces = $this->session->userdata('active_workspaces') ?? [];
         $data['active_workspaces'] = $this->Model->get_by_ids($active_workspaces);    
         $data['intervals'] = $this->Model->get_all_intervals(); 
 
-        // Si no hay cronómetros activos, mostramos un mensaje de bienvenida
+      
         if (empty($data['active_workspaces'])) {
-            $data['welcome_message'] = true; // Bandera para mostrar la bienvenida
+            $data['welcome_message'] = true;
         } else {
-            $data['welcome_message'] = false; // Mostrar cronómetros activos
+            $data['welcome_message'] = false; 
         }
 
-        // Cargar la vista correspondiente
         $data['content'] = 'pages/index';     
         $this->load->view('default/default', $data);
     }
@@ -134,6 +87,53 @@ class TimersController extends CI_Controller {
         $this->Model->delete($id);
         redirect('timersController/timer');
     }
+
+    public function usage_summary() {
+        $filter_type = $this->input->post('filter_type') ?? 'day';  
+        $filter_date = $this->input->post('filter_date') ?? date('Y-m-d');  
+    
+        if (!strtotime($filter_date)) {
+            $filter_date = date('Y-m-d'); 
+        }
+        $workspaces = $this->Model->get_all(); 
+        $workspaces_usage = [];
+    
+        if ($filter_type == 'day') {
+            foreach ($workspaces as $workspace) {
+                $workspaces_usage[] = [
+                    'workspace' => $workspace,
+                    'total_usage' => $this->Model->get_daily_usage_by_workspace($filter_date, $workspace->id)
+                ];
+            }
+        } elseif ($filter_type == 'week') {
+            $start_of_week = date('Y-m-d', strtotime('monday this week', strtotime($filter_date)));
+            $end_of_week = date('Y-m-d', strtotime('sunday this week', strtotime($filter_date)));
+    
+            foreach ($workspaces as $workspace) {
+                $workspaces_usage[] = [
+                    'workspace' => $workspace,
+                    'total_usage' => $this->Model->get_weekly_usage_by_workspace($start_of_week, $end_of_week, $workspace->id)
+                ];
+            }
+        } elseif ($filter_type == 'month') {
+            $year = date('Y', strtotime($filter_date));
+            $month = date('m', strtotime($filter_date));
+    
+            foreach ($workspaces as $workspace) {
+                $workspaces_usage[] = [
+                    'workspace' => $workspace,
+                    'total_usage' => $this->Model->get_monthly_usage_by_workspace($year, $month, $workspace->id)
+                ];
+            }
+        }
+        $data['workspaces_usage'] = $workspaces_usage;
+        $data['filter_type'] = $filter_type; 
+        $data['filter_date'] = $filter_date; 
+    
+        $this->load->view('pages/usage_summary', $data);
+    }
+
+    
 
     public function db_create() {
         $name = $this->input->post('name');
@@ -233,7 +233,6 @@ class TimersController extends CI_Controller {
         $this->load->view('default/default', $data);
     }
 
-    // Métodos para obtener el uso de cronómetros
     public function get_daily_usage_by_workspace($date, $workspace_id) {
         $this->db->select('SUM(duration) as total_duration, SUM(cost) as total_cost');
         $this->db->where('strftime("%Y-%m-%d", start_time) =', $date);  

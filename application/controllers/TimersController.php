@@ -2,14 +2,13 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class TimersController extends CI_Controller {
-    
+
     public function __construct() {
         parent::__construct();
         $this->load->database();
         $this->load->model('Model');
         $this->load->library('session');
         $this->load->helper('form');
-
     }
 
     public function usage_summary() {
@@ -56,13 +55,21 @@ class TimersController extends CI_Controller {
     
         $this->load->view('pages/usage_summary', $data);
     }
-    
-    
 
     public function index() {
+        // Obtener los cronómetros activos de la sesión
         $active_workspaces = $this->session->userdata('active_workspaces') ?? [];
         $data['active_workspaces'] = $this->Model->get_by_ids($active_workspaces);    
         $data['intervals'] = $this->Model->get_all_intervals(); 
+
+        // Si no hay cronómetros activos, mostramos un mensaje de bienvenida
+        if (empty($data['active_workspaces'])) {
+            $data['welcome_message'] = true; // Bandera para mostrar la bienvenida
+        } else {
+            $data['welcome_message'] = false; // Mostrar cronómetros activos
+        }
+
+        // Cargar la vista correspondiente
         $data['content'] = 'pages/index';     
         $this->load->view('default/default', $data);
     }
@@ -166,19 +173,18 @@ class TimersController extends CI_Controller {
     }
 
     public function toggle_timer() {
-    $workspace_id = $this->input->post('workspace_id');
-    $active_workspaces = $this->session->userdata('active_workspaces') ?? [];
+        $workspace_id = $this->input->post('workspace_id');
+        $active_workspaces = $this->session->userdata('active_workspaces') ?? [];
 
-    if (in_array($workspace_id, $active_workspaces)) {
-        $active_workspaces = array_diff($active_workspaces, [$workspace_id]);
-    } else {
-        $active_workspaces[] = $workspace_id;
+        if (in_array($workspace_id, $active_workspaces)) {
+            $active_workspaces = array_diff($active_workspaces, [$workspace_id]);
+        } else {
+            $active_workspaces[] = $workspace_id;
+        }
+
+        $this->session->set_userdata('active_workspaces', $active_workspaces);
+        echo json_encode(['success' => true, 'active' => in_array($workspace_id, $active_workspaces)]);
     }
-
-    $this->session->set_userdata('active_workspaces', $active_workspaces);
-    echo json_encode(['success' => true, 'active' => in_array($workspace_id, $active_workspaces)]);
-}
-
 
     public function save_interval() {
         $name = $this->input->post('name');
@@ -227,7 +233,7 @@ class TimersController extends CI_Controller {
         $this->load->view('default/default', $data);
     }
 
-
+    // Métodos para obtener el uso de cronómetros
     public function get_daily_usage_by_workspace($date, $workspace_id) {
         $this->db->select('SUM(duration) as total_duration, SUM(cost) as total_cost');
         $this->db->where('strftime("%Y-%m-%d", start_time) =', $date);  
@@ -253,5 +259,5 @@ class TimersController extends CI_Controller {
         $query = $this->db->get('workspace_usage_logs');
         return $query->row();
     }
-    
+
 }

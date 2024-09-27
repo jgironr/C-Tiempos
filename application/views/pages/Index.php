@@ -3,23 +3,51 @@
 <link rel="stylesheet" href="<?= base_url('assets/css/styles.css') ?>">
 
 <div class="container-fluid p-0">
-    <?php if ($welcome_message): ?>
-        <div class="empty-state text-center">
-            <!-- Imagen del reloj -->
-            <img src="<?= base_url('uploads/reloj.png') ?>" alt="No cronómetros">
-
-            <h2 class="mt-4">¡Bienvenido! No hay cronómetros activos</h2>
-            <p>¡Parece que no tienes cronómetros activos en este momento! Crea uno nuevo o activa uno para comenzar.</p>
-
-            <!-- Botones -->
-            <div class="button-group">
-                <a href="/C-Tiempos/index.php/timersController/create" class="btn btn-primary">Crear nuevo</a>
-                <a href="/C-Tiempos/index.php/timersController/timer" class="btn btn-success">Activar uno</a>
+<?php if ($welcome_message): ?>
+    <div class="empty-state text-center">
+        <!-- Tarjeta para la temperatura actual -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-10">
+                <div class="card text-center bg-light shadow-sm border-0 rounded">
+                    <div class="card-body">
+                        <h4 class="card-title font-weight-bold text-muted" style="font-size: 1.75rem;">Temperatura actual en Guatemala</h4>
+                        <p class="card-text display-3 text-primary" style="font-size: 2.5rem;"><?= htmlspecialchars($current_temperature) ?></p>
+                    </div>
+                </div>
             </div>
         </div>
-    <?php else: ?>
+
+        
+        <!-- Imagen del reloj -->
+        <img src="<?= base_url('uploads/reloj.png') ?>" alt="No cronómetros" class="img-fluid mb-4" style="max-width: 200px;">
+
+        <!-- Mensaje de bienvenida -->
+        <h2 class="mt-4 text-secondary font-weight-bold">¡Bienvenido! No hay cronómetros activos</h2>
+        <p class="text-muted">¡Parece que no tienes cronómetros activos en este momento! Crea uno nuevo o activa uno para comenzar.</p>
+
+        <!-- Botones de acción -->
+        <div class="d-flex justify-content-center mt-3">
+            <a href="/C-Tiempos/index.php/timersController/create" class="btn btn-primary btn-lg mx-2">Crear nuevo</a>
+            <a href="/C-Tiempos/index.php/timersController/timer" class="btn btn-success btn-lg mx-2">Activar uno</a>
+        </div>
+    </div>
+<?php else: ?>
+
         <div class="container py-3">
             <h1 class="text-center mb-5">Cronómetros Activos</h1>
+
+            <!-- Tarjeta para la temperatura actual -->
+            <div class="row justify-content-center mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center bg-light shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">Temperatura actual en Guatemala</h5>
+                            <p class="card-text text-primary display-4"><?= htmlspecialchars($current_temperature) ?></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="row">
                 <!-- Cronómetros activos -->
                 <?php foreach ($active_workspaces as $workspace): ?>
@@ -27,6 +55,7 @@
                     <div class="card border-0 shadow-sm"
                         style="border-radius: 10px; background-color: <?= htmlspecialchars($workspace->color ?: '#000000') ?>; width: 350px; min-height: 450px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
                         <div class="card-body d-flex flex-column justify-content-between align-items-center text-center p-3">
+                            <!-- Imagen del workspace -->
                             <div class="d-flex justify-content-center mb-3">
                                 <?php if (!empty($workspace->image) && file_exists(FCPATH . 'uploads/' . $workspace->image)): ?>
                                 <img src="<?= base_url('uploads/' . htmlspecialchars($workspace->image)) ?>" alt="Imagen de Portada" class="fixed-image-size">

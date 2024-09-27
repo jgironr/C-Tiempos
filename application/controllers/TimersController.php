@@ -9,6 +9,7 @@ class TimersController extends CI_Controller {
         $this->load->model('Model');
         $this->load->library('session');
         $this->load->helper('form');
+        $this->load->helper(['form', 'weather_helper']);
     }
 
     public function index() {
@@ -16,12 +17,14 @@ class TimersController extends CI_Controller {
         $data['active_workspaces'] = $this->Model->get_by_ids($active_workspaces);    
         $data['intervals'] = $this->Model->get_all_intervals(); 
 
-      
         if (empty($data['active_workspaces'])) {
             $data['welcome_message'] = true;
         } else {
             $data['welcome_message'] = false; 
         }
+
+        // Agregar la temperatura al array de datos
+        $data['current_temperature'] = obtenerTemperatura('Guatemala');
 
         $data['content'] = 'pages/index';     
         $this->load->view('default/default', $data);

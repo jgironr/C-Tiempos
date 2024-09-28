@@ -11,7 +11,20 @@ class TimersController extends CI_Controller {
         $this->load->helper('form');
     }
 
+    // Métodos auxiliares para verificar roles y autenticación
+    private function isAdmin() {
+        return isset($_SESSION['user']) && $_SESSION['user']->role === 'admin';
+    }
+
+    private function isLoggedIn() {
+        return isset($_SESSION['user']);
+    }
+
     public function usage_summary() {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
         $filter_type = $this->input->post('filter_type') ?? 'day';  
         $filter_date = $this->input->post('filter_date') ?? date('Y-m-d');  
     
@@ -57,6 +70,10 @@ class TimersController extends CI_Controller {
     }
 
     public function index() {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
         // Obtener los cronómetros activos de la sesión
         $active_workspaces = $this->session->userdata('active_workspaces') ?? [];
         $data['active_workspaces'] = $this->Model->get_by_ids($active_workspaces);    
@@ -75,6 +92,10 @@ class TimersController extends CI_Controller {
     }
 
     public function timer() {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
         $data['workspaces'] = $this->Model->get_all();
         $data['active_workspaces'] = $this->session->userdata('active_workspaces') ?? [];
         $data['content'] = 'pages/timer';
@@ -82,11 +103,27 @@ class TimersController extends CI_Controller {
     }
 
     public function create() {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
+        if (!$this->isAdmin()) {
+            show_error('Acceso denegado', 403);
+        }
+
         $data['content'] = 'pages/create';
         $this->load->view('default/default', $data);
     }
 
     public function edit($id) {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
+        if (!$this->isAdmin()) {
+            show_error('Acceso denegado', 403);
+        }
+
         $data['workspace'] = $this->Model->get_by_id($id);
 
         if ($data['workspace']) {
@@ -98,6 +135,14 @@ class TimersController extends CI_Controller {
     }
 
     public function update($id) {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
+        if (!$this->isAdmin()) {
+            show_error('Acceso denegado', 403);
+        }
+
         $data = [
             'name' => $this->input->post('name'),
             'description' => $this->input->post('description'),
@@ -131,11 +176,27 @@ class TimersController extends CI_Controller {
     }
 
     public function delete($id) {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
+        if (!$this->isAdmin()) {
+            show_error('Acceso denegado', 403);
+        }
+
         $this->Model->delete($id);
         redirect('timersController/timer');
     }
 
     public function db_create() {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
+        if (!$this->isAdmin()) {
+            show_error('Acceso denegado', 403);
+        }
+
         $name = $this->input->post('name');
         $description = $this->input->post('description');
         $color = $this->input->post('color') ? $this->input->post('color') : '#000000'; 
@@ -173,6 +234,10 @@ class TimersController extends CI_Controller {
     }
 
     public function toggle_timer() {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
         $workspace_id = $this->input->post('workspace_id');
         $active_workspaces = $this->session->userdata('active_workspaces') ?? [];
 
@@ -187,6 +252,14 @@ class TimersController extends CI_Controller {
     }
 
     public function save_interval() {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
+        if (!$this->isAdmin()) {
+            show_error('Acceso denegado', 403);
+        }
+
         $name = $this->input->post('name');
         $duration = $this->input->post('duration');
 
@@ -200,12 +273,24 @@ class TimersController extends CI_Controller {
     }
 
     public function interval_settings() {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
         $data['intervals'] = $this->Model->get_all_intervals(); 
         $data['content'] = 'pages/interval_settings'; 
         $this->load->view('default/default', $data);
     }
 
     public function edit_interval($id) {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
+        if (!$this->isAdmin()) {
+            show_error('Acceso denegado', 403);
+        }
+
         $data['interval'] = $this->Model->get_interval_by_id($id);
 
         if ($this->input->post()) {
@@ -223,41 +308,25 @@ class TimersController extends CI_Controller {
     }
 
     public function delete_interval($id) {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
+        if (!$this->isAdmin()) {
+            show_error('Acceso denegado', 403);
+        }
+
         $this->Model->delete_interval($id);
         redirect('timersController/manage_intervals');
     }
 
     public function manage_intervals() {
+        if (!$this->isLoggedIn()) {
+            redirect('usercontroller/login');
+        }
+
         $data['intervals'] = $this->Model->get_all_intervals();
         $data['content'] = 'pages/manage_intervals';
         $this->load->view('default/default', $data);
     }
-
-    // Métodos para obtener el uso de cronómetros
-    public function get_daily_usage_by_workspace($date, $workspace_id) {
-        $this->db->select('SUM(duration) as total_duration, SUM(cost) as total_cost');
-        $this->db->where('strftime("%Y-%m-%d", start_time) =', $date);  
-        $this->db->where('workspace_id', $workspace_id);
-        $query = $this->db->get('workspace_usage_logs');
-        return $query->row();
-    }
-    
-    public function get_weekly_usage_by_workspace($start_date, $end_date, $workspace_id) {
-        $this->db->select('SUM(duration) as total_duration, SUM(cost) as total_cost');
-        $this->db->where('start_time >=', $start_date);  
-        $this->db->where('start_time <=', $end_date);    
-        $this->db->where('workspace_id', $workspace_id);
-        $query = $this->db->get('workspace_usage_logs');
-        return $query->row();
-    }
-    
-    public function get_monthly_usage_by_workspace($year, $month, $workspace_id) {
-        $this->db->select('SUM(duration) as total_duration, SUM(cost) as total_cost');
-        $this->db->where('strftime("%Y", start_time) =', $year); 
-        $this->db->where('strftime("%m", start_time) =', str_pad($month, 2, '0', STR_PAD_LEFT));  
-        $this->db->where('workspace_id', $workspace_id);
-        $query = $this->db->get('workspace_usage_logs');
-        return $query->row();
-    }
-
 }

@@ -470,4 +470,61 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
+    //NUEVO
+
+// Función para validar el formulario de login y registro de usuario
+document.addEventListener("DOMContentLoaded", function() {
+
+    // Validación básica de formularios
+    const forms = document.querySelectorAll("form");
+    
+    forms.forEach(function(form) {
+        form.addEventListener("submit", function(event) {
+            const inputs = form.querySelectorAll("input[required], select[required]");
+            let isValid = true;
+
+            inputs.forEach(function(input) {
+                if (!input.value) {
+                    isValid = false;
+                    input.classList.add("error");
+                    const errorElement = document.createElement("div");
+                    errorElement.className = "error-message";
+                    errorElement.innerText = `${input.placeholder} es requerido`;
+                    input.parentElement.insertBefore(errorElement, input.nextSibling);
+                }
+            });
+
+            if (!isValid) {
+                event.preventDefault();
+                alert("Por favor, rellena todos los campos obligatorios.");
+            }
+        });
+    });
+
+    // Quitar el mensaje de error cuando el usuario empiece a escribir
+    document.querySelectorAll("input, select").forEach(function(input) {
+        input.addEventListener("input", function() {
+            input.classList.remove("error");
+            const errorElement = input.nextElementSibling;
+            if (errorElement && errorElement.classList.contains("error-message")) {
+                errorElement.remove();
+            }
+        });
+    });
+
+    // Efectos dinámicos en botones
+    const buttons = document.querySelectorAll("button");
+    buttons.forEach(button => {
+        button.addEventListener("mouseover", function() {
+            this.classList.add("hover");
+        });
+        button.addEventListener("mouseleave", function() {
+            this.classList.remove("hover");
+        });
+    });
+
 });
+
+
+});
+

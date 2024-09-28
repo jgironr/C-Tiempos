@@ -469,5 +469,92 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     });
 
+    const correctPin = "0000";  // PIN correcto 
+    let currentWorkspaceId = null;
+    let isLocked = {};  // Objeto para controlar el estado de bloqueo de cada máquina
+    let failedAttempts = {};  // Objeto para contar intentos fallidos de cada máquina
+    
+    // Inicializa el estado de bloqueo y contadores para una máquina
+    function initializeWorkspace(workspaceId) {
+        isLocked[workspaceId] = true;  // Inicialmente bloqueada
+        failedAttempts[workspaceId] = 0;  // Inicializar intentos fallidos
+    }
+    
+    // Mostrar modal para ingresar PIN cuando se intenta pausar o reiniciar
+    function requestPin(workspaceId) {
+        currentWorkspaceId = workspaceId;
+        $('#pinModal').modal('show');
+    }
+    
+    // Verificar el PIN ingresado
+    $('#confirmPinBtn').on('click', function() {
+        const enteredPin = $('#pinInput').val();
+        
+        // Inicializa el estado de bloqueo y los intentos fallidos si no existen
+        if (!isLocked[currentWorkspaceId]) {
+            isLocked[currentWorkspaceId] = true;
+        }
+    
+        if (!failedAttempts[currentWorkspaceId]) {
+            failedAttempts[currentWorkspaceId] = 0;
+        }
+    
+        if (enteredPin === correctPin) {
+            isLocked[currentWorkspaceId] = false;  // Desbloquear si el PIN es correcto
+            $('#pinModal').modal('hide');
+            $('#pinError').hide();
+            unlockControls(currentWorkspaceId);  // Desbloquear los botones de la máquina correspondiente
+            failedAttempts[currentWorkspaceId] = 0;  // Reiniciar el contador de intentos fallidos
+        } else {
+            failedAttempts[currentWorkspaceId]++;
+            $('#pinError').show();  // Mostrar mensaje de error
+            $('#pinInput').addClass('error');  
+            
+            // Bloquear el PIN después de 3 intentos fallidos
+            if (failedAttempts[currentWorkspaceId] >= 3) {
+                alert("Demasiados intentos fallidos para esta máquina. Intenta de nuevo más tarde.");
+                $('#confirmPinBtn').prop('disabled', true);  // Deshabilitar el botón
+                setTimeout(() => {
+                    $('#confirmPinBtn').prop('disabled', false);  // Habilitar después de un tiempo
+                    $('#pinInput').val('').removeClass('error');  // Limpiar y quitar error
+                    failedAttempts[currentWorkspaceId] = 0;  // Reiniciar el contador
+                }, 10000);  // 10 segundos de espera
+            }
+        }
+    });
+    
+    // Desbloquear botones de pausa y reinicio
+    function unlockControls(workspaceId) {
+        $('.play-pause-timer[data-workspace-id="' + workspaceId + '"]').prop('disabled', false);
+        $('.reset-timer[data-workspace-id="' + workspaceId + '"]').prop('disabled', false);
+    }
+    
+    // Bloquear los controles al iniciar el cronómetro o cuenta atrás
+    function lockControls(workspaceId) {
+        $('.play-pause-timer[data-workspace-id="' + workspaceId + '"]').prop('disabled', true);
+        $('.reset-timer[data-workspace-id="' + workspaceId + '"]').prop('disabled', true);
+    }
+    
+    // Evento cuando se presiona el botón de iniciar (cuenta atrás o cronómetro)
+    $('.play-pause-timer').on('click', function() {
+        const workspaceId = $(this).data('workspace-id');
+        
+     
+        if (!isLocked[workspaceId]) {
+            initializeWorkspace(workspaceId);
+        }
+        
+        lockControls(workspaceId);  // Bloquear los botones al iniciar
+    });
+    
+    // Evento cuando se intenta pausar o reiniciar
+    $('.play-pause-timer, .reset-timer').on('click', function(e) {
+        const workspaceId = $(this).data('workspace-id');
+        if (isLocked[workspaceId]) {
+            e.preventDefault();  // Evitar la acción si está bloqueado
+            requestPin(workspaceId);  // Pedir el PIN
+        }
+    });
+    
 
 });

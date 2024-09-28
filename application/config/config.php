@@ -23,7 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://34.238.24.237/C-Tiempos';
+$config['base_url'] = 'http://localhost/C-Tiempos/';
 // $config['base_url'] = 'http://localhost/C-Tiempos/';
 
 /*

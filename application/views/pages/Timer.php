@@ -1,6 +1,6 @@
 <div class="container py-2">
     <h2 class="text-center mb-4">Cronómetros</h2>
-    
+
     <div class="d-flex justify-content-between mb-4">
         <button id="backButton" onclick="window.location.href='<?= site_url('timersController') ?>'"
             class="btn btn-secondary">
@@ -9,19 +9,25 @@
 
         <a href="<?= site_url('TimersController/usage_summary') ?>" class="btn btn-info">Ver Resumen de Uso</a>
 
-        
+
         <div class="ml-auto">
             <button id="createButton" onclick="window.location.href='<?= site_url('timersController/create') ?>'"
                 class="btn btn-primary mr-2"><i class="fas fa-plus mr-2"></i> Cronómetro
             </button>
+            <button id="" onclick="window.location.href='<?= site_url('timersController/create_alert') ?>'"
+                class="btn btn-primary mr-2"><i class="fas fa-plus mr-2"></i> Modulo de Alertas
+            </button>
 
             <div class="dropdown d-inline">
-                <button class="btn btn-info dropdown-toggle" type="button" id="timeManagementDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-info dropdown-toggle" type="button" id="timeManagementDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-clock"></i> Gestión de Tiempos
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="timeManagementDropdown">
-                    <a class="dropdown-item" href="<?= site_url('timersController/interval_settings') ?>">Configuración de Tiempo</a>
-                    <a class="dropdown-item" href="<?= site_url('timersController/manage_intervals') ?>">Control de Tiempos</a>
+                    <a class="dropdown-item" href="<?= site_url('timersController/interval_settings') ?>">Configuración
+                        de Tiempo</a>
+                    <a class="dropdown-item" href="<?= site_url('timersController/manage_intervals') ?>">Control de
+                        Tiempos</a>
                 </div>
             </div>
         </div>
@@ -46,9 +52,11 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-center mb-3">
                         <?php if (!empty($workspace->image) && file_exists(FCPATH . 'uploads/' . $workspace->image)): ?>
-                            <img src="<?= base_url('uploads/' . htmlspecialchars($workspace->image)) ?>" alt="Imagen de Portada" class="fixed-image-size">
+                        <img src="<?= base_url('uploads/' . htmlspecialchars($workspace->image)) ?>"
+                            alt="Imagen de Portada" class="fixed-image-size">
                         <?php else: ?>
-                            <img src="<?= base_url('uploads/default.png') ?>" alt="Imagen Predeterminada" class="fixed-image-size">
+                        <img src="<?= base_url('uploads/default.png') ?>" alt="Imagen Predeterminada"
+                            class="fixed-image-size">
                         <?php endif; ?>
                     </div>
 
@@ -56,9 +64,10 @@
                         <?= htmlspecialchars($workspace->name) ?>
                     </h5>
                     <p class="card-text text-white text-center"><?= htmlspecialchars($workspace->description) ?></p>
-                    
+
                     <p class="card-text text-center">Tarifa: Q<?= htmlspecialchars($workspace->rate) ?> por hora</p>
-                    <input type="hidden" id="rate-<?= $workspace->id ?>" value="<?= htmlspecialchars($workspace->rate) ?>">
+                    <input type="hidden" id="rate-<?= $workspace->id ?>"
+                        value="<?= htmlspecialchars($workspace->rate) ?>">
 
                     <div class="d-flex justify-content-center">
                         <?php if (in_array($workspace->id, $active_workspaces)): ?>

@@ -61,16 +61,32 @@ class Model extends CI_Model {
 
     public function get_daily_usage_by_workspace($date, $workspace_id) {
         $this->db->select('SUM(duration) as total_duration, SUM(cost) as total_cost');
-        $this->db->where('DATE(start_time)', $date);  // Usar la fecha de inicio en formato DATE
+        $this->db->where('DATE(start_time)', $date);  
         $this->db->where('workspace_id', $workspace_id);
         $query = $this->db->get('workspace_usage_logs');
         return $query->row();
     }
+    
+   public function get_all_alerts() {
+    return $this->db->get('sound_alerts')->result();
+}
+
+
+    public function get_alert_by_id($id) {
+        return $this->db->where('id', $id)->get('sound_alerts')->row();
+    }
+
+    public function insert_alert($data) {
+        $this->db->insert('sound_alerts', $data);
+        return $this->db->insert_id(); 
+    }
+
+    public function update_alert($id, $data) {
+        return $this->db->where('id', $id)->update('sound_alerts', $data);
+    }
+
+    public function delete_alert($id) {
+        return $this->db->where('id', $id)->delete('sound_alerts');
+    }
 }
     
-
-
-
-
-
-

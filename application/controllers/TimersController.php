@@ -204,7 +204,7 @@ class TimersController extends CI_Controller {
         $data['content'] = 'pages/interval_settings'; 
         $this->load->view('default/default', $data);
     }
-
+   
     public function edit_interval($id) {
         $data['interval'] = $this->Model->get_interval_by_id($id);
 
@@ -259,4 +259,71 @@ class TimersController extends CI_Controller {
         return $query->row();
     }
 
+      
+    public function create_alert() {
+    $data['alerts'] = $this->Model->get_all_alerts(); 
+    $data['content'] = 'pages/create_alert';
+    $this->load->view('default/default', $data);
+}
+
+
+    public function save_alert() {
+        $data = [
+            'name' => $this->input->post('name'),
+            'sound_file' => ''
+        ];
+
+       
+        if ($_FILES['sound_file']['name']) {
+            $config['upload_path'] = './uploads/'; 
+            $config['allowed_types'] = 'mp3|wav'; 
+            $this->load->library('upload', $config);
+
+            if ($this->upload->do_upload('sound_file')) {
+                $data['sound_file'] = $this->upload->data('file_name');
+            } else {
+                $data['error'] = $this->upload->display_errors(); 
+                $this->load->view('pages/create_alert', $data); 
+                return;
+            }
+        }
+
+        $this->Model->insert_alert($data);
+        redirect('timersController/create_alert'); 
+    }
+
+    public function edit_alert($id) {
+        $data['alert'] = $this->Model->get_alert_by_id($id); 
+
+        if ($this->input->post()) {
+            $update_data = [
+                'name' => $this->input->post('name')
+            ];
+            
+            if ($_FILES['sound_file']['name']) {
+                $config['upload_path'] = './uploads/';
+                $config['allowed_types'] = 'mp3|wav';
+                $this->load->library('upload', $config);
+
+                if ($this->upload->do_upload('sound_file')) {
+                    $update_data['sound_file'] = $this->upload->data('file_name');
+                } else {
+                    $data['error'] = $this->upload->display_errors();
+                    $this->load->view('pages/create_alert', $data); 
+                    return;
+                }
+            }
+
+            $this->Model->update_alert($id, $update_data);
+            redirect('timersController/create_alert');
+        }
+
+        $data['content'] = 'pages/edit_alert'; 
+        $this->load->view('default/default', $data);
+    }
+
+    public function delete_alert($id) {
+        $this->Model->delete_alert($id); 
+        redirect('timersController/create_alert');
+    }
 }

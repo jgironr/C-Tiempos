@@ -259,4 +259,92 @@ class TimersController extends CI_Controller {
         return $query->row();
     }
 
+
+    public function history() {
+        $this->load->helper('form');
+    
+        $filter_type = $this->input->post('filter_type');
+        $filter_date = $this->input->post('filter_date');
+        $filter_month = $this->input->post('filter_month');
+        $filter_year = $this->input->post('filter_year');
+    
+        // Valores predeterminados
+        $filter_type = $filter_type ? $filter_type : 'day';
+        $filter_date = $filter_date ? $filter_date : date('Y-m-d');
+        $filter_month = $filter_month ? $filter_month : date('m');
+        $filter_year = $filter_year ? $filter_year : date('Y');
+    
+        $this->load->model('Model');
+    
+        if ($filter_type == 'day') {
+            $usage_logs = $this->Model->get_usage_logs_by_day($filter_date);
+        } elseif ($filter_type == 'week') {
+            $usage_logs = $this->Model->get_usage_logs_by_week($filter_date);
+        } elseif ($filter_type == 'month') {
+            $date = "$filter_year-$filter_month-01";
+            $usage_logs = $this->Model->get_usage_logs_by_month($date);
+        } else {
+            $usage_logs = [];
+        }
+    
+        $data['usage_logs'] = $usage_logs;
+        $data['filter_type'] = $filter_type;
+        $data['filter_date'] = $filter_date;
+        $data['filter_month'] = $filter_month;
+        $data['filter_year'] = $filter_year;
+        $data['content'] = 'pages/history';
+        $this->load->view('default/default', $data);
+    }
+
+    private function start_timer($workspace_id) {
+        $data = [
+            'workspace_id' => $workspace_id,
+            'start_time' => date('Y-m-d H:i:s'),
+            'date_created' => date('Y-m-d H:i:s')
+        ];
+        
+        
+        if ($this->Model->insert_usage_log($data)) {
+            log_message('debug', 'Timer started successfully for workspace ID: ' . $workspace_id);
+        } else {
+            log_message('error', 'Failed to start timer for workspace ID: ' . $workspace_id);
+        }
+    }
+    
+
+    private function stop_timer($workspace_id) {
+        $usage_log = $this->Model->get_last_unfinished_usage_log($workspace_id);
+    
+        if ($usage_log) {
+            $end_time = date('Y-m-d H:i:s');
+            $duration = strtotime($end_time) - strtotime($usage_log->start_time);
+            $cost = ($duration / 3600) * $this->Model->get_by_id($workspace_id)->rate; // Calcular el costo
+    
+            $update_data = [
+                'end_time' => $end_time,
+                'duration' => $duration,
+                'cost' => $cost
+            ];
+            
+            $this->Model->update_usage_log($usage_log->id, $update_data);
+        }
+    }
+
+
+    public function get_last_unfinished_usage_log($workspace_id) {
+        $this->db->where('workspace_id', $workspace_id);
+        $this->db->where('end_time IS NULL', null, false);
+        $this->db->order_by('start_time', 'DESC');
+        $query = $this->db->get('workspace_usage_logs');
+        return $query->row();
+    }
+    
+    public function get_all_usage_logs() {
+        $this->db->select('workspace_usage_logs.*, timers.name as workspace_name');
+        $this->db->from('workspace_usage_logs');
+        $this->db->join('timers', 'workspace_usage_logs.workspace_id = timers.id');
+        $this->db->order_by('start_time', 'DESC');
+        $query = $this->db->get();
+        return $query->result();
+    }
 }

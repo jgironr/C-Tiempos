@@ -2,13 +2,15 @@
     <h2 class="text-center mb-4">Cronómetros</h2>
     
     <div class="d-flex justify-content-between mb-4">
-        <button id="backButton" onclick="window.location.href='<?= site_url('timersController') ?>'"
-            class="btn btn-secondary">
-            Volver
-        </button>
 
-        <a href="<?= site_url('TimersController/usage_summary') ?>" class="btn btn-info">Ver Resumen de Uso</a>
+        <div class="p-2">
+            <button id="backButton" onclick="window.location.href='<?= site_url('timersController') ?>'"
+                class="btn btn-secondary">
+                Volver
+            </button>
 
+            <a href="<?= site_url('TimersController/history')?>" class="btn btn-info">Ver Historial de uso</a>
+        </div>
         
         <div class="ml-auto">
             <button id="createButton" onclick="window.location.href='<?= site_url('timersController/create') ?>'"

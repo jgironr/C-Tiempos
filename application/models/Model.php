@@ -66,6 +66,80 @@ class Model extends CI_Model {
         $query = $this->db->get('workspace_usage_logs');
         return $query->row();
     }
+
+
+    public function get_all_usage_logs() {
+        $this->db->select('workspace_usage_logs.*, timers.name as workspace_name');
+        $this->db->from('workspace_usage_logs');
+        $this->db->join('timers', 'workspace_usage_logs.workspace_id = timers.id');
+        $this->db->order_by('start_time', 'DESC');
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function get_usage_logs_by_day($date) {
+        $this->db->select('
+            DATE(start_time) AS fecha,
+            timers.name AS workspace_name,
+            MIN(start_time) AS hora_inicio,
+            MAX(end_time) AS hora_fin,
+            SUM(duration) AS tiempo_total,
+            SUM(cost) AS dinero_generado
+        ');
+        $this->db->from('workspace_usage_logs');
+        $this->db->join('timers', 'workspace_usage_logs.workspace_id = timers.id');
+        $this->db->where('DATE(start_time)', $date);
+        $this->db->group_by(['fecha', 'workspace_name']);
+        $this->db->order_by('fecha', 'DESC');
+        
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+
+    public function get_usage_logs_by_week($date) {
+        $this->db->select('
+            DATE(start_time) AS fecha,
+            timers.name AS workspace_name,
+            MIN(start_time) AS hora_inicio,
+            MAX(end_time) AS hora_fin,
+            SUM(duration) AS tiempo_total,
+            SUM(cost) AS dinero_generado
+        ');
+        $this->db->from('workspace_usage_logs');
+        $this->db->join('timers', 'workspace_usage_logs.workspace_id = timers.id');
+        $this->db->where("date(start_time) >= date('{$date}', 'weekday 0', '-6 days')", null, false);
+        $this->db->where("date(start_time) <= date('{$date}', 'weekday 0')", null, false);
+        $this->db->group_by(['fecha', 'workspace_name']);
+        $this->db->order_by('fecha', 'DESC');
+    
+        $query = $this->db->get();
+        return $query->result();
+    }    
+    
+    
+    public function get_usage_logs_by_month($date) {
+        $year = date('Y', strtotime($date));
+        $month = date('m', strtotime($date));
+    
+        $this->db->select('
+            DATE(start_time) AS fecha,
+            timers.name AS workspace_name,
+            MIN(start_time) AS hora_inicio,
+            MAX(end_time) AS hora_fin,
+            SUM(duration) AS tiempo_total,
+            SUM(cost) AS dinero_generado
+        ');
+        $this->db->from('workspace_usage_logs');
+        $this->db->join('timers', 'workspace_usage_logs.workspace_id = timers.id');
+        $this->db->where("strftime('%Y', start_time) =", $year);
+        $this->db->where("strftime('%m', start_time) =", $month);
+        $this->db->group_by('DATE(start_time), workspace_name');
+        $this->db->order_by('fecha', 'DESC');
+    
+        $query = $this->db->get();
+        return $query->result();
+    }
 }
     
 
